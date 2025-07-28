@@ -1,3 +1,4 @@
+import type { Memo } from '@/entities';
 import { getIdbMemoRepository } from '@/entities/memo/api';
 import { useFetchData } from '@/shared/hooks/useFetchData';
 
@@ -18,10 +19,8 @@ export const useGetMemo = (memoId: string = '', options?: UseGetMemosOptions) =>
     return await repository.getMemo(memoId);
   };
 
-  const { data, loading, error, refetch } = useFetchData(() => getMemo(memoId), {
+  return useFetchData<Memo>(() => getMemo(memoId), {
     immediate,
     deps: [memoId],
   });
-
-  return { data, loading, error, refetch };
 };

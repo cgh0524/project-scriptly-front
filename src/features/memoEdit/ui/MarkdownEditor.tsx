@@ -24,8 +24,7 @@ export const MarkdownEditor = ({ content, onChangeContent }: MarkdownEditorProps
     if (contentRef.current) {
       contentRef.current.textContent = content || '';
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [content]);
 
   return <S.MarkdownEditor ref={contentRef} contentEditable onInput={handleChangeContent} />;
 };

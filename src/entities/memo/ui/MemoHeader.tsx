@@ -30,12 +30,10 @@ export const MemoHeader = ({
   };
 
   useEffect(() => {
-    // 초기값 설정 (한 번만)
-    if (titleRef.current) {
+    if (titleRef.current && titleRef.current.innerHTML !== title) {
       titleRef.current.innerHTML = title || '';
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [title]);
 
   return (
     <S.MemoHeader>
