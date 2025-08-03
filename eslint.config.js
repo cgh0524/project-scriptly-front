@@ -26,6 +26,7 @@ export default tseslint.config(
 
       /** TypeScript Rule */
       '@typescript-eslint/consistent-type-imports': 'error',
+      '@typescript-eslint/no-unused-expressions': 'off',
       'simple-import-sort/imports': 'error',
       'simple-import-sort/exports': 'error',
     },
