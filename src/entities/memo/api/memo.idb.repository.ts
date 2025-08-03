@@ -19,7 +19,7 @@ const toDomain = (dbMemo: IdbMemo): Memo => ({
   folderId: dbMemo.folderId,
 });
 
-const toIdb = (memo: CreateMemoRequest): IdbMemo => ({
+const toIdb = (memo: CreateMemoRequest, createdAt?: string): IdbMemo => ({
   id: crypto.randomUUID(),
   title: memo.title,
   content: memo.content,
@@ -27,7 +27,7 @@ const toIdb = (memo: CreateMemoRequest): IdbMemo => ({
   isPublic: memo.isPublic,
   password: memo.password,
   folderId: memo.folderId,
-  createdAt: dayjs().toISOString(),
+  createdAt: createdAt ?? dayjs().toISOString(),
   updatedAt: dayjs().toISOString(),
 });
 
@@ -52,7 +52,7 @@ export const createIdbMemoRepository = (db: IDBDatabase): MemoRepository => {
         });
       },
     );
-    return idbMemos?.map(toDomain) ?? [];
+    return idbMemos?.map(toDomain).sort((a, b) => a.createdAt.localeCompare(b.createdAt)) ?? [];
   };
 
   const getMemo = async (id: string): Promise<Memo> => {
@@ -112,7 +112,7 @@ export const createIdbMemoRepository = (db: IDBDatabase): MemoRepository => {
       schema.memo.name,
       'readwrite',
       async (store) => {
-        const entity = toIdb(updatedDomain);
+        const entity = toIdb(updatedDomain, existing.createdAt);
         await new Promise<void>((resolve, reject) => {
           const req = store.put({ ...entity, id });
           req.onsuccess = () => resolve();
