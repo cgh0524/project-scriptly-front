@@ -35,13 +35,15 @@ export const MemoPage = () => {
 
   const saveMemo = (params: UpdateMemoRequest) => {
     if (!memoId) return;
+    if (memo?.title === params.title && memo?.content === params.content) return;
+
     mutateMemo({ memoId, params });
   };
 
   // 메모 저장 디바운싱
   useDebounce(saveMemo, {
     value: memoRequestParams,
-    delay: 2000,
+    delay: 0,
     immediate: false,
   });
 
