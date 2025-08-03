@@ -73,6 +73,11 @@ const PrimaryButtonStyle = styled(BaseButtonStyle)<ButtonProps>`
   &:active {
     background-color: ${({ theme }) => theme.colors.components.primary.active};
   }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
 `;
 
 interface PrimaryButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {

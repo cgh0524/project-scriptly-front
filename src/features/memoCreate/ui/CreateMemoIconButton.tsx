@@ -5,9 +5,9 @@ import { buttonSize, PrimaryButton } from '@/shared/ui';
 
 type CreateMemoIconButtonProps = ButtonHTMLAttributes<HTMLButtonElement>;
 
-export const CreateMemoIconButton = ({ onClick }: CreateMemoIconButtonProps) => {
+export const CreateMemoIconButton = ({ ...props }: CreateMemoIconButtonProps) => {
   return (
-    <PrimaryButton size={buttonSize.sm} onClick={onClick}>
+    <PrimaryButton size={buttonSize.sm} {...props}>
       <CreateMemoIcon width={24} height={24} />
     </PrimaryButton>
   );

@@ -1,5 +1,3 @@
-import { useCallback } from 'react';
-
 import { type CreateMemoRequest, type Memo } from '@/entities';
 import { getIdbMemoRepository } from '@/entities/memo/api';
 import { useMutateData } from '@/shared/hooks/useMutateData';
@@ -16,26 +14,5 @@ export const useCreateMemo = (options?: UseCreateMemoOptions) => {
     return await repository.createMemo(params);
   };
 
-  const {
-    mutate: mutateMemo,
-    data,
-    error,
-    loading,
-    reset,
-  } = useMutateData<Memo, CreateMemoRequest>(createMemo, options);
-
-  const mutate = useCallback(
-    (params: CreateMemoRequest) => {
-      return mutateMemo(params);
-    },
-    [mutateMemo],
-  );
-
-  return {
-    mutate,
-    data,
-    error,
-    loading,
-    reset,
-  };
+  return useMutateData<Memo, CreateMemoRequest>(createMemo, options);
 };
