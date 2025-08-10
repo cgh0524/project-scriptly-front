@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router';
 
 import { useCreateMemo, useGetMemos } from '@/entities/memo/lib';
@@ -13,11 +14,11 @@ export const MemoEditorToolbar = () => {
 
   const { data: memos, refetch } = useGetMemos();
 
+  const isDisabledCreateMemoButton = useRef(false);
   const { mutate: createMemo, loading: createMemoLoading } = useCreateMemo({
     useHttp: false,
-    onSuccess: async (data) => {
+    onSuccess: async () => {
       await refetch();
-      navigate(`/memo/${data.id}`, { replace: true });
     },
   });
 
@@ -25,37 +26,37 @@ export const MemoEditorToolbar = () => {
     useHttp: false,
     onSuccess: async () => {
       await refetch();
-
-      const oldMemos = memos;
-      const deletedMemoIndex = oldMemos.findIndex((memo) => memo.id === memoId);
-
-      const nextMemo = oldMemos[deletedMemoIndex + 1];
-      if (nextMemo) {
-        navigate(`/memo/${nextMemo.id}`, { replace: true });
-        return;
-      }
-
-      const prevMemo = oldMemos[deletedMemoIndex - 1];
-      if (prevMemo) {
-        navigate(`/memo/${prevMemo.id}`, { replace: true });
-        return;
-      }
-      navigate('/', { replace: true });
     },
   });
 
-  const handleCreateMemo = () => {
-    createMemo({
+  const handleCreateMemo = async () => {
+    if (isDisabledCreateMemoButton.current) return;
+
+    await createMemo({
       title: '',
       content: '',
       isPublic: true,
     });
+
+    setTimeout(() => {
+      isDisabledCreateMemoButton.current = false;
+    }, 300);
   };
 
   const handleDeleteMemo = () => {
     if (!memoId) return;
     deleteMemo(memoId);
   };
+
+  useEffect(() => {
+    if (memos.length === 0) {
+      navigate('/', { replace: true });
+      return;
+    }
+
+    navigate(`/memo/${memos[memos.length - 1].id}`, { replace: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [memos.length]);
 
   return (
     <S.Container>

@@ -22,12 +22,12 @@ export const useMutateData = <TData, TPayload>(
     try {
       result = await mutationFn(payload);
       setData(result);
-      onSuccess?.(result);
+      await onSuccess?.(result);
       return result;
     } catch (err) {
       errorMessage = err instanceof Error ? err.message : '오류 발생';
       setError(errorMessage);
-      onError?.(errorMessage);
+      await onError?.(errorMessage);
       return null;
     } finally {
       setLoading(false);
