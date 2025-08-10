@@ -29,10 +29,15 @@ export const MemoHeader = ({
     onChangeTitle(event.currentTarget.textContent || '');
   };
 
+  /** 페이지 처음 진입시, 메모 제목 업데이트 */
   useEffect(() => {
-    if (titleRef.current && titleRef.current.innerHTML !== title) {
-      titleRef.current.innerHTML = title || '';
-    }
+    if (!titleRef.current) return;
+    if (titleRef.current.innerHTML === title) return;
+
+    // 현재 포커스가 있는 경우 업데이트하지 않음
+    if (document.activeElement === titleRef.current) return;
+
+    titleRef.current.innerHTML = title || '';
   }, [title]);
 
   return (

@@ -6,7 +6,6 @@ import { useGetMemo } from '@/entities/memo/lib/useGetMemo';
 import { useGetMemos } from '@/entities/memo/lib/useGetMemos';
 import { useUpdateMemo } from '@/entities/memo/lib/useUpdateMemo';
 import { MarkdownEditor } from '@/features/memoEdit';
-import { useDebounce } from '@/shared/hooks/useDebounce';
 import { EmptyContent } from '@/shared/ui';
 
 import * as S from './MemoPage.styles';
@@ -14,10 +13,11 @@ import * as S from './MemoPage.styles';
 export const MemoPage = () => {
   const { memoId } = useParams();
 
-  const { data: memo } = useGetMemo(memoId);
+  const { data: memo, refetch: refetchMemo } = useGetMemo(memoId);
   const { refetch: refetchMemos } = useGetMemos({ immediate: false });
   const { mutate: mutateMemo } = useUpdateMemo({
     onSuccess: () => {
+      refetchMemo();
       refetchMemos();
       // @TODO : 메모 저장 성공 시 토스트 메시지 표시
     },
@@ -40,19 +40,17 @@ export const MemoPage = () => {
     mutateMemo({ memoId, params });
   };
 
-  // 메모 저장 디바운싱
-  useDebounce(saveMemo, {
-    value: memoRequestParams,
-    delay: 0,
-    immediate: false,
-  });
-
   // 메모 제목 변경 핸들러
   const handleChangeTitle = (title: string) => {
     setMemoRequestParams((prev) => ({
       ...prev,
       title,
     }));
+
+    saveMemo({
+      ...memoRequestParams,
+      title,
+    });
   };
 
   // 메모 내용 변경 핸들러
@@ -61,6 +59,11 @@ export const MemoPage = () => {
       ...prev,
       content,
     }));
+
+    saveMemo({
+      ...memoRequestParams,
+      content,
+    });
   };
 
   // 메모 데이터 초기화
@@ -69,7 +72,8 @@ export const MemoPage = () => {
       ...prev,
       ...memo,
     }));
-  }, [memo]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [memo?.id]);
 
   return memo ? (
     <S.Container>
