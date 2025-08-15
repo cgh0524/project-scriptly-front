@@ -3,7 +3,7 @@ import { useEffect, useRef } from 'react';
 import { clearContentEditable, isContentEditableEmpty } from '@/shared/lib/utils/contentEditable';
 
 import * as S from './EditableBlock.styles';
-import type { Block } from './MarkdownEditor';
+import type { Block } from '../types/block';
 
 interface EditableBlockProps {
   block: Block;
