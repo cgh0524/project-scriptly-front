@@ -6,4 +6,6 @@ export const MarkdownEditor = styled.div`
   min-height: 0;
   flex-grow: 1;
   overflow-y: auto;
+
+  outline: none;
 `;

@@ -23,6 +23,8 @@ export const Title = styled.div<MemoHeaderProps>`
   font-size: ${fontSizes.h3};
   font-weight: bold;
 
+  outline: none;
+
   &:empty::before {
     content: attr(data-placeholder);
     color: ${({ theme }) => theme.colors.components.text.muted};
