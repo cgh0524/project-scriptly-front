@@ -3,6 +3,7 @@ import { useRef } from 'react';
 import { useBlockOperations } from '../hooks/useBlockOperations';
 import { useFocusManager } from '../hooks/useFocusManager';
 import { useMarkdownBlocks } from '../hooks/useMarkdownBlocks';
+import { focusBlock } from '../lib/domUtils';
 import { blocksToHtml } from '../lib/htmlParser';
 import type { Block } from '../types/block';
 import { EditableBlock } from './EditableBlock';
@@ -48,7 +49,12 @@ export const MarkdownEditor = ({ content, onChangeContent }: MarkdownEditorProps
   };
 
   // 마크다운 패턴으로 블록 변환 시
-  const handleTransformBlock = (blockId: string, tagName: string, content: string) => {
+  const handleTransformBlock = (
+    blockId: string,
+    tagName: string,
+    content: string,
+    cursorOffset?: number,
+  ) => {
     const updatedBlocks = blocks.map((block) =>
       block.id === blockId
         ? { ...block, tagName: tagName as Block['tagName'], innerHTML: content }
@@ -58,14 +64,21 @@ export const MarkdownEditor = ({ content, onChangeContent }: MarkdownEditorProps
     setBlocks(updatedBlocks);
     skipUpdateBlocks();
     onChangeContent(blocksToHtml(updatedBlocks));
+
+    if (cursorOffset !== undefined) {
+      requestAnimationFrame(() => {
+        focusBlock(blockId, cursorOffset);
+      });
+    }
   };
 
   return (
     <S.MarkdownEditor ref={containerRef} onClick={handleContainerClick}>
-      {blocks.map((block) => (
+      {blocks.map((block, index) => (
         <EditableBlock
           key={block.id}
           block={block}
+          showPlaceholder={index === blocks.length - 1}
           onChange={handleChangeBlockContent}
           onEnterKey={handleEnterKey}
           onDelete={handleDeleteBlock}

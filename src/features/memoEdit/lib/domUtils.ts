@@ -1,10 +1,26 @@
 /**
  * 특정 블록에 포커스 설정
  */
-export const focusBlock = (blockId: string): void => {
+export const focusBlock = (blockId: string, cursorOffset?: number): void => {
   const blockElement = document.querySelector(`[data-block-id="${blockId}"]`) as HTMLElement;
-  if (blockElement) {
-    blockElement.focus();
+
+  if (!blockElement) return;
+  blockElement.focus();
+
+  if (cursorOffset === undefined) return;
+
+  // 커서 위치 복원
+  const selection = window.getSelection();
+  const range = document.createRange();
+
+  const textNode = blockElement.firstChild;
+  if (textNode && textNode.nodeType === Node.TEXT_NODE) {
+    const maxOffset = Math.min(cursorOffset, textNode.textContent?.length || 0);
+    range.setStart(textNode, maxOffset);
+    range.setEnd(textNode, maxOffset);
+
+    selection?.removeAllRanges();
+    selection?.addRange(range);
   }
 };
 

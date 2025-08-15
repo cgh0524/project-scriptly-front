@@ -8,14 +8,16 @@ import * as S from './EditableBlock.styles';
 
 interface EditableBlockProps {
   block: Block;
+  showPlaceholder: boolean;
   onChange: (blockId: string, newInnerHTML: string) => void;
   onEnterKey: (blockId: string) => void;
   onDelete: (blockId: string) => void;
-  onTransform?: (blockId: string, tagName: string, content: string) => void;
+  onTransform?: (blockId: string, tagName: string, content: string, cursorOffset?: number) => void;
 }
 
 export const EditableBlock = ({
   block,
+  showPlaceholder = true,
   onChange,
   onEnterKey,
   onDelete,
@@ -61,7 +63,10 @@ export const EditableBlock = ({
       const pattern = detectMarkdownPattern(text + ' ');
       if (pattern && onTransform) {
         event.preventDefault();
-        onTransform(block.id, pattern.tagName, pattern.content);
+
+        // 현재 커서 위치 계산 (마크다운 문법 제거 후 위치)
+        const cursorOffset = pattern.content.length;
+        onTransform(block.id, pattern.tagName, pattern.content, cursorOffset);
         return;
       }
     }
@@ -98,7 +103,7 @@ export const EditableBlock = ({
       onInput={handleInput}
       onKeyDown={handleKeyDown}
       data-block-id={block.id}
-      data-placeholder={placeholder}
+      data-placeholder={showPlaceholder ? placeholder : undefined}
     />
   );
 };
