@@ -15,7 +15,7 @@ export const MemoListItem = styled(ListItem)<MemoListItemProps>`
 
   width: 100%;
   min-height: 68px;
-  padding: ${spacing.sm} 0;
+  padding: ${spacing.sm};
 
   font-size: ${fontSizes.small};
   font-weight: 600;
@@ -29,6 +29,10 @@ export const MemoListItem = styled(ListItem)<MemoListItemProps>`
 `;
 
 export const MemoTitle = styled.span`
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+
   font-size: ${fontSizes.h5};
   font-weight: 600;
 `;
