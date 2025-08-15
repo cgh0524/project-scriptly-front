@@ -3,6 +3,7 @@ import { useRef } from 'react';
 import { useBlockOperations } from '../hooks/useBlockOperations';
 import { useFocusManager } from '../hooks/useFocusManager';
 import { useMarkdownBlocks } from '../hooks/useMarkdownBlocks';
+import { blocksToHtml } from '../lib/htmlParser';
 import { EditableBlock } from './EditableBlock';
 import * as S from './MarkdownEditor.styles';
 
@@ -21,7 +22,7 @@ export const MarkdownEditor = ({ content, onChangeContent }: MarkdownEditorProps
   });
 
   // 블록 생성, 수정, 삭제 처리
-  const { handleBlockChange, addBlock, deleteBlock } = useBlockOperations({
+  const { addBlock, deleteBlock } = useBlockOperations({
     blocks,
     setBlocks,
     skipUpdateBlocks,
@@ -29,18 +30,29 @@ export const MarkdownEditor = ({ content, onChangeContent }: MarkdownEditorProps
   });
 
   // 키보드 이벤트 및 포커스 관리
-  const { handleEnterKey, handleDeleteBlock } = useFocusManager({
+  const { handleEnterKey, handleDeleteBlock, handleContainerClick } = useFocusManager({
     addBlock,
     deleteBlock,
   });
 
+  // 블록 내용 변경 시
+  const handleChangeBlockContent = (blockId: string, newInnerHTML: string) => {
+    const updatedBlocks = blocks.map((block) =>
+      block.id === blockId ? { ...block, innerHTML: newInnerHTML } : block,
+    );
+
+    setBlocks(updatedBlocks);
+    skipUpdateBlocks();
+    onChangeContent(blocksToHtml(updatedBlocks));
+  };
+
   return (
-    <S.MarkdownEditor ref={containerRef}>
+    <S.MarkdownEditor ref={containerRef} onClick={handleContainerClick}>
       {blocks.map((block) => (
         <EditableBlock
           key={block.id}
           block={block}
-          onChange={handleBlockChange}
+          onChange={handleChangeBlockContent}
           onEnterKey={handleEnterKey}
           onDelete={handleDeleteBlock}
         />

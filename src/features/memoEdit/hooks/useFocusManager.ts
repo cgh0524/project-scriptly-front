@@ -1,6 +1,6 @@
 import { useRef } from 'react';
 
-import { focusBlock, focusBlockAtEnd } from '../lib/domUtils';
+import { findClosestBlock, focusBlock, focusBlockAtEnd } from '../lib/domUtils';
 import type { Block } from '../types/block';
 
 interface UseFocusManagerProps {
@@ -41,8 +41,27 @@ export const useFocusManager = ({ addBlock, deleteBlock }: UseFocusManagerProps)
     }
   };
 
+  const handleContainerClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    // 클릭된 요소가 블록이면 무시
+    const target = event.target as HTMLElement;
+    console.log('target', target);
+
+    if (target.getAttribute('data-block-id')) {
+      return;
+    }
+
+    const closestBlockId = findClosestBlock(event.clientY);
+
+    if (closestBlockId) {
+      setTimeout(() => {
+        focusBlockAtEnd(closestBlockId);
+      }, 0);
+    }
+  };
+
   return {
     handleEnterKey,
     handleDeleteBlock,
+    handleContainerClick,
   };
 };

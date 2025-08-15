@@ -24,14 +24,6 @@ export const useBlockOperations = ({
     onChangeContent(blocksToHtml(updatedBlocks));
   };
 
-  const handleBlockChange = (blockId: string, newInnerHTML: string) => {
-    const updatedBlocks = blocks.map((block) =>
-      block.id === blockId ? { ...block, innerHTML: newInnerHTML } : block,
-    );
-    setBlocks(updatedBlocks);
-    updateContent(updatedBlocks);
-  };
-
   const createNewBlock = (): Block => {
     const blockCreatedMillis = dayjs().valueOf();
     return {
@@ -74,7 +66,6 @@ export const useBlockOperations = ({
   };
 
   return {
-    handleBlockChange,
     addBlock,
     deleteBlock,
   };
