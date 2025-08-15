@@ -1,6 +1,6 @@
 import 'styled-components';
 
-import type { Theme } from './theme.types';
+import type { Theme } from '@/shared/config/theme';
 
 // styled-components 타입 확장
 declare module 'styled-components' {
