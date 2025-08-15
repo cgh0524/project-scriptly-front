@@ -44,7 +44,6 @@ export const useFocusManager = ({ addBlock, deleteBlock }: UseFocusManagerProps)
   const handleContainerClick = (event: React.MouseEvent<HTMLDivElement>) => {
     // 클릭된 요소가 블록이면 무시
     const target = event.target as HTMLElement;
-    console.log('target', target);
 
     if (target.getAttribute('data-block-id')) {
       return;

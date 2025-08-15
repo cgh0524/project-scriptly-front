@@ -17,12 +17,12 @@ export const useMarkdownBlocks = ({ content, containerRef }: UseMarkdownBlocksPr
   // 블록을 업데이트 해야하는지 판단하는 플래그
   // 사용자가 블록 내에서 입력하는 경우, 업데이트 X
   // 외부 (Component Props)에서 변경하는 경우, 업데이트 O
-  const shouldUpdateBlocks = useRef(true);
+  const sholudSkipUpdateBlocks = useRef(false);
 
   useEffect(() => {
     // 내부에서 변경한 경우 스킵
-    if (!shouldUpdateBlocks.current) {
-      shouldUpdateBlocks.current = true;
+    if (sholudSkipUpdateBlocks.current) {
+      sholudSkipUpdateBlocks.current = false;
       return;
     }
 
@@ -44,7 +44,7 @@ export const useMarkdownBlocks = ({ content, containerRef }: UseMarkdownBlocksPr
    * 내부 변경 플래그 설정 (외부 content 변경으로 인한 업데이트 방지)
    */
   const skipUpdateBlocks = () => {
-    shouldUpdateBlocks.current = false;
+    sholudSkipUpdateBlocks.current = true;
   };
 
   return {

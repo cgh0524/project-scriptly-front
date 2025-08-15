@@ -1,6 +1,7 @@
 import dayjs from 'dayjs';
 
 import type { Block } from '../types/block';
+import { parseMarkdown } from './parseMarkdown';
 
 /**
  * HTML 문자열을 Block 배열로 변환
@@ -34,4 +35,11 @@ export const parseHtmlToBlocks = (htmlString: string): Block[] => {
  */
 export const blocksToHtml = (blocks: Block[]): string => {
   return blocks.map((block) => `<${block.tagName}>${block.innerHTML}</${block.tagName}>`).join('');
+};
+
+/**
+ * Block 배열을 마크다운 문자열로 변환
+ */
+export const blocksToMarkdown = (blocks: Block[]): string => {
+  return blocks.map((block) => parseMarkdown(block.innerHTML)).join('');
 };
