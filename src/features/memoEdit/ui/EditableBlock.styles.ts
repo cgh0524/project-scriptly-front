@@ -4,6 +4,8 @@ import { fontSizes } from '@/shared/config/styles';
 
 const baseBlockStyles = css`
   outline: none;
+  word-wrap: break-word;
+  white-space: pre-wrap;
 
   &:empty::before {
     content: attr(data-placeholder);

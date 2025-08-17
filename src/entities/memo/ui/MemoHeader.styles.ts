@@ -25,6 +25,9 @@ export const Title = styled.div<MemoHeaderProps>`
 
   outline: none;
 
+  word-wrap: break-word;
+  white-space: pre-wrap;
+
   &:empty::before {
     content: attr(data-placeholder);
     color: ${({ theme }) => theme.colors.components.text.muted};
