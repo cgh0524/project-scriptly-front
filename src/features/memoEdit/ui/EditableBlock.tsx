@@ -3,7 +3,7 @@ import { useEffect, useRef } from 'react';
 import { clearContentEditable, isContentEditableEmpty } from '@/shared/lib/utils/contentEditable';
 
 import { detectMarkdownPattern } from '../lib/parseMarkdown';
-import type { Block } from '../types/block';
+import type { Block } from '../types/block.types';
 import * as S from './EditableBlock.styles';
 
 interface EditableBlockProps {
@@ -61,12 +61,12 @@ export const EditableBlock = ({
 
       // 마크다운 패턴 감지
       const pattern = detectMarkdownPattern(text + ' ');
-      if (pattern && onTransform) {
+      if (pattern) {
         event.preventDefault();
 
         // 현재 커서 위치 계산 (마크다운 문법 제거 후 위치)
         const cursorOffset = pattern.content.length;
-        onTransform(block.id, pattern.tagName, pattern.content, cursorOffset);
+        onTransform?.(block.id, pattern.tagName, pattern.content, cursorOffset);
         return;
       }
     }
@@ -78,10 +78,16 @@ export const EditableBlock = ({
 
     if (event.key === 'Backspace') {
       const element = event.currentTarget;
-      if (isContentEditableEmpty(element)) {
-        event.preventDefault();
-        onDelete(block.id);
+      if (!isContentEditableEmpty(element)) return;
+      event.preventDefault();
+
+      // 블록의 태그가 div가 아닌 경우 (markdown문법이 적용되어있는 경우)
+      if (block.tagName !== 'div') {
+        onTransform?.(block.id, 'div', '', 0);
+        return;
       }
+
+      onDelete(block.id);
     }
   };
 

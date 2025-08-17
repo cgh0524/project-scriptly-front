@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 
 import { blocksToHtml } from '../lib/htmlParser';
-import type { Block } from '../types/block';
+import type { Block } from '../types/block.types';
 
 interface UseBlockOperationsProps {
   blocks: Block[];
@@ -28,7 +28,7 @@ export const useBlockOperations = ({
     const blockCreatedMillis = dayjs().valueOf();
     return {
       id: `block-${blockCreatedMillis}`,
-      tagName: 'p',
+      tagName: 'div',
       innerHTML: '',
     };
   };

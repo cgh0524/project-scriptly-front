@@ -1,7 +1,7 @@
 import { useRef } from 'react';
 
 import { findClosestBlock, focusBlock, focusBlockAtEnd } from '../lib/domUtils';
-import type { Block } from '../types/block';
+import type { Block } from '../types/block.types';
 
 interface UseFocusManagerProps {
   addBlock: (afterBlockId: string) => Block;

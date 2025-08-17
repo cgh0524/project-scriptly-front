@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 
-import type { Block } from '../types/block';
+import type { Block } from '../types/block.types';
 
 /**
  * HTML 문자열을 Block 배열로 변환

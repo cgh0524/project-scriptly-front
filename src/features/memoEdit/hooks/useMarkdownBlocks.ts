@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 
 import { parseHtmlToBlocks } from '../lib/htmlParser';
-import type { Block } from '../types/block';
+import type { Block } from '../types/block.types';
 
 interface UseMarkdownBlocksProps {
   content: string;

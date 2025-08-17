@@ -1,11 +1,13 @@
 import { useRef } from 'react';
 
+import { useRequestAnimationFrame } from '@/shared/hooks/useRequestAnimationFrame';
+
 import { useBlockOperations } from '../hooks/useBlockOperations';
 import { useFocusManager } from '../hooks/useFocusManager';
 import { useMarkdownBlocks } from '../hooks/useMarkdownBlocks';
 import { focusBlock } from '../lib/domUtils';
 import { blocksToHtml } from '../lib/htmlParser';
-import type { Block } from '../types/block';
+import type { Block } from '../types/block.types';
 import { EditableBlock } from './EditableBlock';
 import * as S from './MarkdownEditor.styles';
 
@@ -16,6 +18,9 @@ interface MarkdownEditorProps {
 
 export const MarkdownEditor = ({ content, onChangeContent }: MarkdownEditorProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // 블록 변환 시 포커스 이동을 위한 RAF 사용
+  const { executeRAF } = useRequestAnimationFrame();
 
   // 마크다운 블록 상태 관리
   const { blocks, setBlocks, skipUpdateBlocks } = useMarkdownBlocks({
@@ -66,7 +71,7 @@ export const MarkdownEditor = ({ content, onChangeContent }: MarkdownEditorProps
     onChangeContent(blocksToHtml(updatedBlocks));
 
     if (cursorOffset !== undefined) {
-      requestAnimationFrame(() => {
+      executeRAF(() => {
         focusBlock(blockId, cursorOffset);
       });
     }
