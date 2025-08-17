@@ -2,8 +2,8 @@ import { useRef } from 'react';
 
 import { useRequestAnimationFrame } from '@/shared/hooks/useRequestAnimationFrame';
 
+import { useBlockInteraction } from '../hooks/useBlockInteraction';
 import { useBlockOperations } from '../hooks/useBlockOperations';
-import { useFocusManager } from '../hooks/useFocusManager';
 import { useMarkdownBlocks } from '../hooks/useMarkdownBlocks';
 import { focusBlock } from '../lib/domUtils';
 import { blocksToHtml } from '../lib/htmlParser';
@@ -37,7 +37,7 @@ export const MarkdownEditor = ({ content, onChangeContent }: MarkdownEditorProps
   });
 
   // 키보드 이벤트 및 포커스 관리
-  const { handleEnterKey, handleDeleteBlock, handleContainerClick } = useFocusManager({
+  const { handleEnterKey, handleDeleteBlock, handleContainerClick } = useBlockInteraction({
     addBlock,
     deleteBlock,
   });

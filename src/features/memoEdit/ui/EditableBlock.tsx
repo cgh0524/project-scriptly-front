@@ -15,6 +15,20 @@ interface EditableBlockProps {
   onTransform?: (blockId: string, tagName: string, content: string, cursorOffset?: number) => void;
 }
 
+// tagName에 따라 동적으로 컴포넌트 선택
+const getBlockComponent = (block: Block) => {
+  const componentMap = {
+    div: { component: S.Block, placeholder: '내용을 입력해주세요' },
+    h1: { component: S.H1, placeholder: '제목1' },
+    h2: { component: S.H2, placeholder: '제목2' },
+    h3: { component: S.H3, placeholder: '제목3' },
+    h4: { component: S.H4, placeholder: '제목4' },
+    h5: { component: S.H5, placeholder: '제목5' },
+    h6: { component: S.H6, placeholder: '제목6' },
+  };
+  return componentMap[block.tagName] || { component: S.Block, placeholder: '내용을 입력해주세요' };
+};
+
 export const EditableBlock = ({
   block,
   showPlaceholder = true,
@@ -25,23 +39,7 @@ export const EditableBlock = ({
 }: EditableBlockProps) => {
   const blockRef = useRef<HTMLDivElement>(null);
 
-  // tagName에 따라 동적으로 컴포넌트 선택
-  const getBlockComponent = () => {
-    const componentMap = {
-      div: { component: S.Block, placeholder: '내용을 입력해주세요' },
-      h1: { component: S.H1, placeholder: '제목1' },
-      h2: { component: S.H2, placeholder: '제목2' },
-      h3: { component: S.H3, placeholder: '제목3' },
-      h4: { component: S.H4, placeholder: '제목4' },
-      h5: { component: S.H5, placeholder: '제목5' },
-      h6: { component: S.H6, placeholder: '제목6' },
-    };
-    return (
-      componentMap[block.tagName] || { component: S.Block, placeholder: '내용을 입력해주세요' }
-    );
-  };
-
-  const { component: BlockComponent, placeholder } = getBlockComponent();
+  const { component: BlockComponent, placeholder } = getBlockComponent(block);
 
   const handleInput = (event: React.FormEvent<HTMLDivElement>) => {
     if (isContentEditableEmpty(event.currentTarget)) {

@@ -11,7 +11,7 @@ interface UseFocusManagerProps {
 /**
  * 블록 포커스 및 키보드 이벤트 관리 훅
  */
-export const useFocusManager = ({ addBlock, deleteBlock }: UseFocusManagerProps) => {
+export const useBlockInteraction = ({ addBlock, deleteBlock }: UseFocusManagerProps) => {
   const lastEnterTime = useRef<number>(0);
 
   const handleEnterKey = (blockId: string) => {
