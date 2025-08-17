@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 
 import { useTheme } from '@/app/providers/ThemeProvider';
+import { focusBlockAtEnd, getAllBlockElements } from '@/features/memoEdit/lib/domUtils';
 import { clearContentEditable, isContentEditableEmpty } from '@/shared/lib/utils/contentEditable';
 
 import * as S from './MemoHeader.styles';
@@ -29,6 +30,19 @@ export const MemoHeader = ({
     onChangeTitle(event.currentTarget.textContent || '');
   };
 
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      const blocks = getAllBlockElements();
+      if (blocks.length === 0) return;
+
+      const blockId = blocks[0].getAttribute('data-block-id');
+      if (!blockId) return;
+
+      focusBlockAtEnd(blockId);
+    }
+  };
+
   /** 페이지 처음 진입시, 메모 제목 업데이트 */
   useEffect(() => {
     if (!titleRef.current) return;
@@ -48,6 +62,7 @@ export const MemoHeader = ({
         contentEditable
         theme={theme}
         onInput={handleInput}
+        onKeyDown={handleKeyDown}
         data-placeholder={titlePlaceholder || '제목 없음'}
       />
     </S.MemoHeader>
