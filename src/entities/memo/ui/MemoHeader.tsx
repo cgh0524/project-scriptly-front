@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 
 import { useTheme } from '@/app/providers/ThemeProvider';
-import { focusBlockAtEnd, getAllBlockElements } from '@/features/memoEdit/lib/domUtils';
+import { focusBlockAtEnd, getAllBlockElements, getBlockId } from '@/features/memoEdit/lib/domUtils';
 import { clearContentEditable, isContentEditableEmpty } from '@/shared/lib/utils/contentEditable';
 
 import * as S from './MemoHeader.styles';
@@ -36,7 +36,7 @@ export const MemoHeader = ({
       const blocks = getAllBlockElements();
       if (blocks.length === 0) return;
 
-      const blockId = blocks[0].getAttribute('data-block-id');
+      const blockId = getBlockId(blocks[0]);
       if (!blockId) return;
 
       focusBlockAtEnd(blockId);

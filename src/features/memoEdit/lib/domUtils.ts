@@ -1,3 +1,5 @@
+const BLOCK_ID_ATTRIBUTE = 'data-block-id';
+
 /**
  * 특정 블록에 포커스 설정
  */
@@ -70,7 +72,7 @@ export const findClosestBlock = (clickY: number): string | null => {
 
   if (!closestBlock) return null;
 
-  return (closestBlock as HTMLElement).getAttribute('data-block-id') ?? null;
+  return (closestBlock as HTMLElement).getAttribute(BLOCK_ID_ATTRIBUTE) ?? null;
 };
 
 /**
@@ -86,10 +88,17 @@ export const getBlockTextContent = (blockId: string): string => {
  * 특정 블록 엘리먼트 반환
  */
 export const getBlockElement = (blockId: string): HTMLElement | null => {
-  return document.querySelector(`[data-block-id="${blockId}"]`);
+  return document.querySelector(`[${BLOCK_ID_ATTRIBUTE}="${blockId}"]`);
 };
 
-/** 모든 블록 엘리먼트 반환 */
+/**
+ * 모든 블록 엘리먼트 반환
+ */
 export const getAllBlockElements = (): HTMLElement[] => {
-  return Array.from(document.querySelectorAll('[data-block-id]')) as HTMLElement[];
+  return Array.from(document.querySelectorAll(`[${BLOCK_ID_ATTRIBUTE}]`)) as HTMLElement[];
+};
+
+/** 블록 id 반환 */
+export const getBlockId = (blockElement: HTMLElement): string | null => {
+  return blockElement.getAttribute(BLOCK_ID_ATTRIBUTE);
 };
