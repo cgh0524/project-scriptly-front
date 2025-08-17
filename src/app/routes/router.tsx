@@ -23,24 +23,28 @@ const localDataLoader = async () => {
   await loadIdbMemos();
 };
 
-export const router = createBrowserRouter([
+export const router = createBrowserRouter(
+  [
+    {
+      Component: RootLayout,
+      loader: localDataLoader,
+      children: [
+        {
+          index: true,
+          Component: EntryPage,
+          // @TEMP : memos를 root에서 로드하는 중. 추후 필요없는게 확정되면 삭제
+          // loader: entryLoader,
+          hydrateFallbackElement: <IndexedDBLoading />,
+        },
+        {
+          path: 'memo/:memoId',
+          hydrateFallbackElement: <Loading />,
+          Component: MemoPage,
+        },
+      ],
+    },
+  ],
   {
-    path: '/',
-    Component: RootLayout,
-    loader: localDataLoader,
-    children: [
-      {
-        index: true,
-        Component: EntryPage,
-        // @TEMP : memos를 root에서 로드하는 중. 추후 필요없는게 확정되면 삭제
-        // loader: entryLoader,
-        hydrateFallbackElement: <IndexedDBLoading />,
-      },
-      {
-        path: 'memo/:memoId',
-        hydrateFallbackElement: <Loading />,
-        Component: MemoPage,
-      },
-    ],
+    basename: '/project-scriptly-front',
   },
-]);
+);
