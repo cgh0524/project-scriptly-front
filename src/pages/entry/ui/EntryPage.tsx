@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router';
 
-import { useGetMemos } from '@/entities/memo/lib';
+import { useCreateMemo, useGetMemos } from '@/entities/memo/lib';
 import { buttonSize, PrimaryButton } from '@/shared/ui/button';
 import { EmptyContent } from '@/shared/ui/empty/EmptyContent';
 
@@ -9,17 +9,38 @@ import { EmptyContent } from '@/shared/ui/empty/EmptyContent';
 export const EntryPage = () => {
   const navigate = useNavigate();
 
-  const { data: memos } = useGetMemos({ immediate: false });
+  const { data: memos, refetch } = useGetMemos({ immediate: false });
+  const { mutate: createMemo, loading: createMemoLoading } = useCreateMemo({
+    useHttp: false,
+    onSuccess: async () => {
+      await refetch();
+    },
+  });
+
+  const handleCreateMemo = async () => {
+    if (createMemoLoading) return;
+
+    await createMemo({
+      title: '',
+      content: '',
+      isPublic: true,
+    });
+  };
 
   useEffect(() => {
-    if (!memos.length) return;
-    navigate(`/memo/${memos[0].id}`);
-  }, [navigate, memos.length, memos]);
+    if (memos.length === 0) {
+      navigate('/', { replace: true });
+      return;
+    }
+
+    navigate(`/memo/${memos[memos.length - 1].id}`, { replace: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [memos.length]);
 
   if (memos.length === 0) {
     return (
       <EmptyContent title="메모가 없습니다.">
-        <PrimaryButton width="140px" size={buttonSize.lg}>
+        <PrimaryButton width="140px" size={buttonSize.lg} onClick={handleCreateMemo}>
           메모 추가
         </PrimaryButton>
       </EmptyContent>
