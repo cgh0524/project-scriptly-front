@@ -26,6 +26,7 @@ export const Title = styled.div<MemoHeaderProps>`
   outline: none;
 
   word-wrap: break-word;
+  word-break: break-all;
   white-space: pre-wrap;
 
   &:empty::before {

@@ -1,10 +1,13 @@
 import styled, { css } from 'styled-components';
 
-import { fontSizes } from '@/shared/config/styles';
+import { fontSizes, spacing } from '@/shared/config/styles';
 
 const baseBlockStyles = css`
+  margin-bottom: calc(${spacing.sm} + 4px);
+
   outline: none;
   word-wrap: break-word;
+  word-break: break-all;
   white-space: pre-wrap;
 
   &:empty::before {
