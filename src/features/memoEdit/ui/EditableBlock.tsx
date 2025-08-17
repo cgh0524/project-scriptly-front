@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 
+import { useRequestAnimationFrame } from '@/shared/hooks/useRequestAnimationFrame';
 import { clearContentEditable, isContentEditableEmpty } from '@/shared/lib/utils/contentEditable';
 
 import { getCursorOffset, isFirstLine, isLastLine, splitTextAtCursor } from '../lib/cursorUtils';
@@ -17,7 +18,7 @@ interface EditableBlockProps {
   showPlaceholder: boolean;
   onChange: (blockId: string, newInnerHTML: string) => void;
   onEnterKey: (index: number, beforeText: string, afterText: string) => void;
-  onDelete: (blockId: string) => void;
+  onBackspace: (index: number, currentText: string) => void;
   onArrowNavigate?: (index: number, direction: KeyboardArrowDirection) => void;
   onTransform?: (blockId: string, tagName: string, content: string, cursorOffset?: number) => void;
 }
@@ -42,12 +43,13 @@ export const EditableBlock = ({
   showPlaceholder = true,
   onChange,
   onEnterKey,
-  onDelete,
+  onBackspace,
   onArrowNavigate,
   onTransform,
 }: EditableBlockProps) => {
   const blockRef = useRef<HTMLDivElement>(null);
 
+  const { executeRAF } = useRequestAnimationFrame();
   const { component: BlockComponent, placeholder } = getBlockComponent(block);
 
   const handleInput = (event: React.FormEvent<HTMLDivElement>) => {
@@ -120,23 +122,27 @@ export const EditableBlock = ({
       event.preventDefault();
       const { beforeText, afterText } = splitTextAtCursor(event.currentTarget);
 
-      blockRef.current.innerHTML = beforeText;
       onEnterKey(index, beforeText, afterText);
+      executeRAF(() => {
+        if (!blockRef.current) return;
+        blockRef.current.textContent = beforeText;
+      });
       return;
     }
 
     if (event.key === 'Backspace') {
       const element = event.currentTarget;
-      if (!isContentEditableEmpty(element)) return;
+      const cursorOffset = getCursorOffset(element);
+
+      // 커서가 맨 앞에 있을 때만 처리
+      if (cursorOffset > 0) return;
+
+      // 첫 번째 블록이면 처리하지 않음
+      if (index === 0) return;
+
       event.preventDefault();
-
-      // 블록의 태그가 div가 아닌 경우 (markdown문법이 적용되어있는 경우)
-      if (block.tagName !== 'div') {
-        onTransform?.(block.id, 'div', '', 0);
-        return;
-      }
-
-      onDelete(block.id);
+      const currentText = element.textContent || '';
+      onBackspace(index, currentText);
     }
   };
 
