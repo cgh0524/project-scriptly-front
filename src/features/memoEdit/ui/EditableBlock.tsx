@@ -107,7 +107,7 @@ export const EditableBlock = ({
       const text = element.textContent || '';
 
       // 마크다운 패턴 감지
-      const pattern = detectMarkdownPattern(text + ' ');
+      const pattern = detectMarkdownPattern(text);
       if (pattern) {
         event.preventDefault();
 
@@ -136,6 +136,12 @@ export const EditableBlock = ({
 
       // 커서가 맨 앞에 있을 때만 처리
       if (cursorOffset > 0) return;
+
+      // 블록의 태그가 div가 아닌 경우 (markdown문법이 적용되어있는 경우)
+      if (block.tagName !== 'div') {
+        onTransform?.(block.id, 'div', element.textContent || '', 0);
+        return;
+      }
 
       // 첫 번째 블록이면 처리하지 않음
       if (index === 0) return;

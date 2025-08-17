@@ -13,7 +13,7 @@ interface MarkdownPattern {
 const PATTERNS: MarkdownPattern[] = [
   {
     name: 'heading',
-    pattern: /^(#{1,6})\s+(.*)$/,
+    pattern: /^(#{1,6})\s*(.*)$/,
     trigger: ' ',
     transform: (match) => {
       const [, hashes, content] = match;
@@ -61,6 +61,7 @@ export const detectMarkdownPattern = (
 
     const match = text.match(pattern.pattern);
 
+    console.log(text);
     if (match) {
       const result = pattern.transform(match);
       return {
