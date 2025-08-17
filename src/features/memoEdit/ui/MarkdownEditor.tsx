@@ -66,7 +66,7 @@ export const MarkdownEditor = ({ content, onChangeContent }: MarkdownEditorProps
   };
 
   // 엔터키 처리
-  const handleEnterKey = (index: number, beforeText: string, afterText: string) => {
+  const handleEnterKey = (index: number, beforeHtml: string, afterHtml: string) => {
     const now = Date.now();
     // 50ms 내 중복 실행 방지 (StrictMode 때문에 두 번 실행되는 것을 방지)
     if (now - lastEnterTime.current < 50) {
@@ -82,22 +82,23 @@ export const MarkdownEditor = ({ content, onChangeContent }: MarkdownEditorProps
       block.id === currentBlock.id
         ? {
             ...block,
-            innerHTML: beforeText,
-            tagName: currentBlock.tagName !== 'div' ? ('div' as Block['tagName']) : block.tagName,
+            innerHTML: beforeHtml,
+            tagName: currentBlock.tagName,
           }
         : block,
     );
 
     setBlocks(updatedBlocks);
+    skipUpdateBlocks();
     onChangeContent(blocksToHtml(updatedBlocks));
 
     // 새 블록 생성 (항상 div로 생성하고 afterText 설정)
-    const newBlock = addBlock(currentBlock.id, afterText);
+    const newBlock = addBlock(currentBlock.id, afterHtml, updatedBlocks);
 
     // 새 블록으로 포커스 이동
-    setTimeout(() => {
+    executeRAF(() => {
       focusBlock(newBlock.id);
-    }, 0);
+    });
   };
 
   // 백스페이스 처리: 현재 블록의 텍스트를 이전 블록에 병합하고 현재 블록 삭제
@@ -137,7 +138,7 @@ export const MarkdownEditor = ({ content, onChangeContent }: MarkdownEditorProps
     );
 
     setBlocks(updatedBlocks);
-    skipUpdateBlocks();
+
     onChangeContent(blocksToHtml(updatedBlocks));
   };
 

@@ -33,8 +33,11 @@ export const useBlockManagement = ({
     };
   };
 
-  const addBlock = (afterBlockId: string, initialText?: string) => {
-    const blockIndex = blocks.findIndex((block) => block.id === afterBlockId);
+  const addBlock = (afterBlockId: string, initialText?: string, targetBlocks?: Block[]) => {
+    // 최신 blocks 사용 (파라미터로 받은 것 우선, 없으면 현재 상태)
+    const currentBlocks = targetBlocks || blocks;
+
+    const blockIndex = currentBlocks.findIndex((block) => block.id === afterBlockId);
     const newBlock = createNewBlock();
 
     // 초기 텍스트가 있으면 설정
@@ -43,9 +46,9 @@ export const useBlockManagement = ({
     }
 
     const updatedBlocks = [
-      ...blocks.slice(0, blockIndex + 1),
+      ...currentBlocks.slice(0, blockIndex + 1),
       newBlock,
-      ...blocks.slice(blockIndex + 1),
+      ...currentBlocks.slice(blockIndex + 1),
     ];
 
     setBlocks(updatedBlocks);

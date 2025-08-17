@@ -61,7 +61,6 @@ export const detectMarkdownPattern = (
 
     const match = text.match(pattern.pattern);
 
-    console.log(text);
     if (match) {
       const result = pattern.transform(match);
       return {

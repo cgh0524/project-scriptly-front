@@ -102,25 +102,65 @@ export const isLastLine = (element: HTMLElement): boolean => {
 };
 
 // 커서 위치에서 텍스트를 앞/뒤로 분할
-export const splitTextAtCursor = (
+/**
+ * 커서 위치에서 HTML을 앞/뒤로 분할 (HTML 구조 유지)
+ */
+export const splitHtmlAtCursor = (
   element: HTMLElement,
 ): {
-  beforeText: string;
-  afterText: string;
+  beforeHtml: string;
+  afterHtml: string;
 } => {
-  const cursorRange = getCurrentCursorRange();
-  if (!cursorRange) {
+  const selection = window.getSelection();
+  if (!selection || selection.rangeCount === 0) {
     return {
-      beforeText: element.textContent || '',
-      afterText: '',
+      beforeHtml: element.innerHTML || '',
+      afterHtml: '',
     };
   }
 
-  const fullText = element.textContent || '';
-  const cursorOffset = getCursorOffset(element);
+  const range = selection.getRangeAt(0);
+
+  // 커서가 해당 element 내부에 있는지 확인
+  if (!element.contains(range.commonAncestorContainer)) {
+    return {
+      beforeHtml: element.innerHTML || '',
+      afterHtml: '',
+    };
+  }
+
+  // element의 전체 범위 생성
+  const fullRange = document.createRange();
+  fullRange.selectNodeContents(element);
+
+  // 커서 이전 부분 추출
+  const beforeRange = document.createRange();
+  beforeRange.setStart(fullRange.startContainer, fullRange.startOffset);
+  beforeRange.setEnd(range.startContainer, range.startOffset);
+
+  // 커서 이후 부분 추출
+  const afterRange = document.createRange();
+  afterRange.setStart(range.endContainer, range.endOffset);
+  afterRange.setEnd(fullRange.endContainer, fullRange.endOffset);
+
+  // HTML 문자열로 변환
+  const beforeHtml = rangeToHtml(beforeRange);
+  const afterHtml = rangeToHtml(afterRange);
 
   return {
-    beforeText: fullText.substring(0, cursorOffset),
-    afterText: fullText.substring(cursorOffset),
+    beforeHtml,
+    afterHtml,
   };
+};
+
+/**
+ * Range를 HTML 문자열로 변환
+ */
+const rangeToHtml = (range: Range): string => {
+  // DocumentFragment 생성
+  const contents = range.cloneContents();
+
+  const div = document.createElement('div');
+  div.appendChild(contents);
+  return div.innerHTML;
 };

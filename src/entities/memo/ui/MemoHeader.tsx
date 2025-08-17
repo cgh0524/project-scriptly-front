@@ -33,16 +33,19 @@ export const MemoHeader = ({
   const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
     if (event.key === 'Enter') {
       event.preventDefault();
-      const blocks = getAllBlockElements();
-      if (blocks.length === 0) return;
 
-      const blockId = getBlockId(blocks[0]);
-      if (!blockId) return;
+      // RAF로 포커스 이동 지연
+      requestAnimationFrame(() => {
+        const blocks = getAllBlockElements();
+        if (blocks.length === 0) return;
 
-      focusBlockAtEnd(blockId);
+        const blockId = getBlockId(blocks[0]);
+        if (!blockId) return;
+
+        focusBlockAtEnd(blockId);
+      });
     }
   };
-
   /** 페이지 처음 진입시, 메모 제목 업데이트 */
   useEffect(() => {
     if (!titleRef.current) return;

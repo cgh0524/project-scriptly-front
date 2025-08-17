@@ -1,9 +1,8 @@
 import { useEffect, useRef } from 'react';
 
-import { useRequestAnimationFrame } from '@/shared/hooks/useRequestAnimationFrame';
 import { clearContentEditable, isContentEditableEmpty } from '@/shared/lib/utils/contentEditable';
 
-import { getCursorOffset, isFirstLine, isLastLine, splitTextAtCursor } from '../lib/cursorUtils';
+import { getCursorOffset, isFirstLine, isLastLine, splitHtmlAtCursor } from '../lib/cursorUtils';
 import { detectMarkdownPattern } from '../lib/parseMarkdown';
 import type { Block } from '../types/block.types';
 import {
@@ -49,7 +48,6 @@ export const EditableBlock = ({
 }: EditableBlockProps) => {
   const blockRef = useRef<HTMLDivElement>(null);
 
-  const { executeRAF } = useRequestAnimationFrame();
   const { component: BlockComponent, placeholder } = getBlockComponent(block);
 
   const handleInput = (event: React.FormEvent<HTMLDivElement>) => {
@@ -58,7 +56,7 @@ export const EditableBlock = ({
     }
 
     if (!blockRef.current) return;
-    const parsedHtml = event.currentTarget.textContent || '';
+    const parsedHtml = event.currentTarget.innerHTML || '';
     onChange(block.id, parsedHtml);
   };
 
@@ -120,13 +118,10 @@ export const EditableBlock = ({
 
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault();
-      const { beforeText, afterText } = splitTextAtCursor(event.currentTarget);
 
-      onEnterKey(index, beforeText, afterText);
-      executeRAF(() => {
-        if (!blockRef.current) return;
-        blockRef.current.textContent = beforeText;
-      });
+      const { beforeHtml, afterHtml } = splitHtmlAtCursor(event.currentTarget);
+
+      onEnterKey(index, beforeHtml, afterHtml);
       return;
     }
 
@@ -155,9 +150,6 @@ export const EditableBlock = ({
   useEffect(() => {
     if (!blockRef.current) return;
     if (blockRef.current.innerHTML === block.innerHTML) return;
-
-    // 현재 포커스가 있는 경우 업데이트하지 않음
-    if (document.activeElement === blockRef.current) return;
 
     blockRef.current.innerHTML = block.innerHTML || '';
   }, [block.id, block.innerHTML, block.tagName]);
