@@ -33,9 +33,14 @@ export const useBlockManagement = ({
     };
   };
 
-  const addBlock = (afterBlockId: string) => {
+  const addBlock = (afterBlockId: string, initialText?: string) => {
     const blockIndex = blocks.findIndex((block) => block.id === afterBlockId);
     const newBlock = createNewBlock();
+
+    // 초기 텍스트가 있으면 설정
+    if (initialText !== undefined) {
+      newBlock.innerHTML = initialText;
+    }
 
     const updatedBlocks = [
       ...blocks.slice(0, blockIndex + 1),

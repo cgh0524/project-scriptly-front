@@ -100,3 +100,27 @@ export const isLastLine = (element: HTMLElement): boolean => {
 
   return Math.abs(cursorRect.top - lastCharRect.top) <= TOLERANCE;
 };
+
+// 커서 위치에서 텍스트를 앞/뒤로 분할
+export const splitTextAtCursor = (
+  element: HTMLElement,
+): {
+  beforeText: string;
+  afterText: string;
+} => {
+  const cursorRange = getCurrentCursorRange();
+  if (!cursorRange) {
+    return {
+      beforeText: element.textContent || '',
+      afterText: '',
+    };
+  }
+
+  const fullText = element.textContent || '';
+  const cursorOffset = getCursorOffset(element);
+
+  return {
+    beforeText: fullText.substring(0, cursorOffset),
+    afterText: fullText.substring(cursorOffset),
+  };
+};

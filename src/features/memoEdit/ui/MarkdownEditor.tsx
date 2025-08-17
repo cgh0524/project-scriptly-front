@@ -43,8 +43,11 @@ export const MarkdownEditor = ({ content, onChangeContent }: MarkdownEditorProps
 
   // 키보드 이벤트 및 포커스 관리
   const { handleEnterKey, handleDeleteBlock, handleContainerClick } = useBlockInteraction({
+    blocks,
+    setBlocks,
     addBlock,
     deleteBlock,
+    onChangeContent,
   });
 
   // 블록 내용 변경 시
@@ -82,6 +85,7 @@ export const MarkdownEditor = ({ content, onChangeContent }: MarkdownEditorProps
     }
   };
 
+  // 방향키로 블록간 이동
   const handleArrowNavigate = (currentIndex: number, direction: KeyboardArrowDirection) => {
     const currentBlockElement = getBlockElement(blocks[currentIndex].id) as HTMLElement;
     let targetIndex = currentIndex;
@@ -121,7 +125,6 @@ export const MarkdownEditor = ({ content, onChangeContent }: MarkdownEditorProps
         if (targetIndex >= blocks.length) return;
 
         executeRAF(() => {
-          console.log(blocks[targetIndex].id);
           focusBlock(blocks[targetIndex].id, 0);
         });
         break;

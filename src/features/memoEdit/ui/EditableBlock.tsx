@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 
 import { clearContentEditable, isContentEditableEmpty } from '@/shared/lib/utils/contentEditable';
 
-import { getCursorOffset, isFirstLine, isLastLine } from '../lib/cursorUtils';
+import { getCursorOffset, isFirstLine, isLastLine, splitTextAtCursor } from '../lib/cursorUtils';
 import { detectMarkdownPattern } from '../lib/parseMarkdown';
 import type { Block } from '../types/block.types';
 import {
@@ -16,7 +16,7 @@ interface EditableBlockProps {
   block: Block;
   showPlaceholder: boolean;
   onChange: (blockId: string, newInnerHTML: string) => void;
-  onEnterKey: (blockId: string) => void;
+  onEnterKey: (index: number, beforeText: string, afterText: string) => void;
   onDelete: (blockId: string) => void;
   onArrowNavigate?: (index: number, direction: KeyboardArrowDirection) => void;
   onTransform?: (blockId: string, tagName: string, content: string, cursorOffset?: number) => void;
@@ -62,6 +62,8 @@ export const EditableBlock = ({
 
   // 키보드 이벤트 처리 (트리거 기반 마크다운 파싱)
   const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (!blockRef.current) return;
+
     if (event.key === 'ArrowUp' && isFirstLine(event.currentTarget)) {
       event.preventDefault();
       onArrowNavigate?.(index, KEYBOARD_ARROW_DIRECTION.UP);
@@ -116,7 +118,11 @@ export const EditableBlock = ({
 
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault();
-      onEnterKey(block.id);
+      const { beforeText, afterText } = splitTextAtCursor(event.currentTarget);
+
+      blockRef.current.innerHTML = beforeText;
+      onEnterKey(index, beforeText, afterText);
+      return;
     }
 
     if (event.key === 'Backspace') {
