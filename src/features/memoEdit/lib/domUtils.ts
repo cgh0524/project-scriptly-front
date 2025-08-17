@@ -2,7 +2,7 @@
  * 특정 블록에 포커스 설정
  */
 export const focusBlock = (blockId: string, cursorOffset?: number): void => {
-  const blockElement = document.querySelector(`[data-block-id="${blockId}"]`) as HTMLElement;
+  const blockElement = getBlockElement(blockId);
 
   if (!blockElement) return;
   blockElement.focus();
@@ -28,13 +28,20 @@ export const focusBlock = (blockId: string, cursorOffset?: number): void => {
  * 특정 블록에 포커스 설정하고 커서를 끝으로 이동
  */
 export const focusBlockAtEnd = (blockId: string): void => {
-  const blockElement = document.querySelector(`[data-block-id="${blockId}"]`) as HTMLElement;
+  const blockElement = getBlockElement(blockId);
   if (blockElement) {
     blockElement.focus();
+
     const range = document.createRange();
     const selection = window.getSelection();
+
+    // 블록 엘리먼트의 모든 내용을 선택 범위로 설정
     range.selectNodeContents(blockElement);
+
+    // 선택 범위를 끝 위치로 축소 (false = 끝으로 축소)
     range.collapse(false);
+
+    //기존 선택 범위 제거 후 새로운 범위 적용
     selection?.removeAllRanges();
     selection?.addRange(range);
   }
@@ -44,7 +51,7 @@ export const focusBlockAtEnd = (blockId: string): void => {
  * 클릭 위치와 가장 가까운 블록 찾기
  */
 export const findClosestBlock = (clickY: number): string | null => {
-  const blocks = document.querySelectorAll('[data-block-id]') as NodeListOf<HTMLElement>;
+  const blocks = getAllBlockElements();
   if (blocks.length === 0) return null;
 
   let closestBlock: HTMLElement | null = null;
@@ -64,4 +71,25 @@ export const findClosestBlock = (clickY: number): string | null => {
   if (!closestBlock) return null;
 
   return (closestBlock as HTMLElement).getAttribute('data-block-id') ?? null;
+};
+
+/**
+ * 특정 블록의 텍스트 내용 반환
+ */
+export const getBlockTextContent = (blockId: string): string => {
+  const blockElement = getBlockElement(blockId);
+  if (!blockElement) return '';
+  return blockElement.textContent || '';
+};
+
+/**
+ * 특정 블록 엘리먼트 반환
+ */
+export const getBlockElement = (blockId: string): HTMLElement | null => {
+  return document.querySelector(`[data-block-id="${blockId}"]`);
+};
+
+/** 모든 블록 엘리먼트 반환 */
+export const getAllBlockElements = (): HTMLElement[] => {
+  return Array.from(document.querySelectorAll('[data-block-id]')) as HTMLElement[];
 };

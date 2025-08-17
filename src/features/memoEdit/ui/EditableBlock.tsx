@@ -2,16 +2,23 @@ import { useEffect, useRef } from 'react';
 
 import { clearContentEditable, isContentEditableEmpty } from '@/shared/lib/utils/contentEditable';
 
+import { getCursorOffset, isFirstLine, isLastLine } from '../lib/cursorUtils';
 import { detectMarkdownPattern } from '../lib/parseMarkdown';
 import type { Block } from '../types/block.types';
+import {
+  KEYBOARD_ARROW_DIRECTION,
+  type KeyboardArrowDirection,
+} from '../types/keyboardArrow.types';
 import * as S from './EditableBlock.styles';
 
 interface EditableBlockProps {
+  index: number;
   block: Block;
   showPlaceholder: boolean;
   onChange: (blockId: string, newInnerHTML: string) => void;
   onEnterKey: (blockId: string) => void;
   onDelete: (blockId: string) => void;
+  onArrowNavigate?: (index: number, direction: KeyboardArrowDirection) => void;
   onTransform?: (blockId: string, tagName: string, content: string, cursorOffset?: number) => void;
 }
 
@@ -30,11 +37,13 @@ const getBlockComponent = (block: Block) => {
 };
 
 export const EditableBlock = ({
+  index,
   block,
   showPlaceholder = true,
   onChange,
   onEnterKey,
   onDelete,
+  onArrowNavigate,
   onTransform,
 }: EditableBlockProps) => {
   const blockRef = useRef<HTMLDivElement>(null);
@@ -53,6 +62,42 @@ export const EditableBlock = ({
 
   // 키보드 이벤트 처리 (트리거 기반 마크다운 파싱)
   const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === 'ArrowUp' && isFirstLine(event.currentTarget)) {
+      event.preventDefault();
+      onArrowNavigate?.(index, KEYBOARD_ARROW_DIRECTION.UP);
+      return;
+    }
+
+    if (event.key === 'ArrowDown' && isLastLine(event.currentTarget)) {
+      event.preventDefault();
+      onArrowNavigate?.(index, KEYBOARD_ARROW_DIRECTION.DOWN);
+      return;
+    }
+
+    if (event.key === 'ArrowLeft') {
+      const cursorOffset = getCursorOffset(event.currentTarget);
+      if (cursorOffset > 0) return;
+
+      event.preventDefault();
+      onArrowNavigate?.(index, KEYBOARD_ARROW_DIRECTION.LEFT);
+      return;
+    }
+
+    if (event.key === 'ArrowRight') {
+      const cursorOffset = getCursorOffset(event.currentTarget);
+
+      // 텍스트가 존재하는데, 커서가 마지막 위치가 아닌 경우
+      if (
+        !isContentEditableEmpty(event.currentTarget) &&
+        cursorOffset < (blockRef.current?.textContent?.length || 0)
+      )
+        return;
+
+      event.preventDefault();
+      onArrowNavigate?.(index, KEYBOARD_ARROW_DIRECTION.RIGHT);
+      return;
+    }
+
     if (event.key === ' ') {
       const element = event.currentTarget;
       const text = element.textContent || '';

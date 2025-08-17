@@ -3,11 +3,16 @@ import { useRef } from 'react';
 import { useRequestAnimationFrame } from '@/shared/hooks/useRequestAnimationFrame';
 
 import { useBlockInteraction } from '../hooks/useBlockInteraction';
-import { useBlockOperations } from '../hooks/useBlockOperations';
-import { useMarkdownBlocks } from '../hooks/useMarkdownBlocks';
-import { focusBlock } from '../lib/domUtils';
+import { useBlockManagement } from '../hooks/useBlockManagement';
+import { useBlockState } from '../hooks/useBlockState';
+import { getCursorOffset } from '../lib/cursorUtils';
+import { focusBlock, focusBlockAtEnd, getBlockElement } from '../lib/domUtils';
 import { blocksToHtml } from '../lib/htmlParser';
 import type { Block } from '../types/block.types';
+import {
+  KEYBOARD_ARROW_DIRECTION,
+  type KeyboardArrowDirection,
+} from '../types/keyboardArrow.types';
 import { EditableBlock } from './EditableBlock';
 import * as S from './MarkdownEditor.styles';
 
@@ -22,14 +27,14 @@ export const MarkdownEditor = ({ content, onChangeContent }: MarkdownEditorProps
   // 블록 변환 시 포커스 이동을 위한 RAF 사용
   const { executeRAF } = useRequestAnimationFrame();
 
-  // 마크다운 블록 상태 관리
-  const { blocks, setBlocks, skipUpdateBlocks } = useMarkdownBlocks({
+  // 블록 상태 관리
+  const { blocks, setBlocks, skipUpdateBlocks } = useBlockState({
     content,
     containerRef: containerRef as React.RefObject<HTMLElement>,
   });
 
   // 블록 생성, 수정, 삭제 처리
-  const { addBlock, deleteBlock } = useBlockOperations({
+  const { addBlock, deleteBlock } = useBlockManagement({
     blocks,
     setBlocks,
     skipUpdateBlocks,
@@ -77,16 +82,64 @@ export const MarkdownEditor = ({ content, onChangeContent }: MarkdownEditorProps
     }
   };
 
+  const handleArrowNavigate = (currentIndex: number, direction: KeyboardArrowDirection) => {
+    const currentBlockElement = getBlockElement(blocks[currentIndex].id) as HTMLElement;
+    let targetIndex = currentIndex;
+
+    switch (direction) {
+      case KEYBOARD_ARROW_DIRECTION.UP:
+        targetIndex = currentIndex - 1;
+        if (targetIndex < 0) return;
+
+        executeRAF(() => {
+          const cursorOffset = getCursorOffset(currentBlockElement);
+          focusBlock(blocks[targetIndex].id, cursorOffset);
+        });
+        break;
+
+      case KEYBOARD_ARROW_DIRECTION.DOWN:
+        targetIndex = currentIndex + 1;
+        if (targetIndex >= blocks.length) return;
+
+        executeRAF(() => {
+          const cursorOffset = getCursorOffset(currentBlockElement);
+          focusBlock(blocks[targetIndex].id, cursorOffset);
+        });
+        break;
+
+      case KEYBOARD_ARROW_DIRECTION.LEFT:
+        targetIndex = currentIndex - 1;
+        if (targetIndex < 0) return;
+
+        executeRAF(() => {
+          focusBlockAtEnd(blocks[targetIndex].id);
+        });
+        break;
+
+      case KEYBOARD_ARROW_DIRECTION.RIGHT:
+        targetIndex = currentIndex + 1;
+        if (targetIndex >= blocks.length) return;
+
+        executeRAF(() => {
+          console.log(blocks[targetIndex].id);
+          focusBlock(blocks[targetIndex].id, 0);
+        });
+        break;
+    }
+  };
+
   return (
     <S.MarkdownEditor ref={containerRef} onClick={handleContainerClick}>
       {blocks.map((block, index) => (
         <EditableBlock
           key={block.id}
+          index={index}
           block={block}
           showPlaceholder={index === blocks.length - 1}
           onChange={handleChangeBlockContent}
           onEnterKey={handleEnterKey}
           onDelete={handleDeleteBlock}
+          onArrowNavigate={handleArrowNavigate}
           onTransform={handleTransformBlock}
         />
       ))}

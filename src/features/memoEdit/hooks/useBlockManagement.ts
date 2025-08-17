@@ -13,7 +13,7 @@ interface UseBlockOperationsProps {
 /**
  * 블록 CRUD 작업 관리 훅
  */
-export const useBlockOperations = ({
+export const useBlockManagement = ({
   blocks,
   setBlocks,
   skipUpdateBlocks,

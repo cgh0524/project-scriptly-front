@@ -9,9 +9,9 @@ interface UseMarkdownBlocksProps {
 }
 
 /**
- * 마크다운 블록 상태 관리 훅
+ * 블록 상태 관리 훅
  */
-export const useMarkdownBlocks = ({ content, containerRef }: UseMarkdownBlocksProps) => {
+export const useBlockState = ({ content, containerRef }: UseMarkdownBlocksProps) => {
   const [blocks, setBlocks] = useState<Block[]>(() => parseHtmlToBlocks(content));
 
   // 블록을 업데이트 해야하는지 판단하는 플래그
