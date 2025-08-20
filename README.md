@@ -1,144 +1,242 @@
-# Scriptly
+# Scriptly - 블록 기반 마크다운 에디터
 
-마크다운 메모 도구 (블록 기반 실시간 마크다운 렌더링 도구)
+> 실무 경험을 바탕으로 프론트엔드 특화 아키텍처를 학습하고 적용한 메모 도구
 
-## 📋 목차
+🔗 **Live Demo**: [배포 링크](https://cgh0524.github.io/project-scriptly-front)
 
-- [프로젝트 개요](#-프로젝트-개요)
-- [기술 및 아키텍처](#-기술-및-아키텍처)
-- [아키텍처 선택 이유](#-아키텍처-선택-이유)
-- [주요 구현사항](#-주요-구현사항)
-- [폴더구조](#-폴더구조)
-- [커밋 컨벤션](#-커밋-컨벤션)
-- [Quick Start](#-quick-start)
+## 🚀 주요 성취
 
-<br>
+### 핵심 성과
 
-## 🚀 프로젝트 개요
+- **아키텍처 개선**: 클린 아키텍처의 한계를 분석하고 FSD 아키텍처 학습 적용
+- **확장 가능한 설계**: Repository 패턴으로 IndexedDB → REST API 마이그레이션 대비
+- **커스텀 에디터**: Selection API 활용한 블록 기반 실시간 마크다운 렌더링
 
-Scriptly는 마크다운 기반의 직관적인 개인 메모 작성 도구입니다.
+## 🏗️ 아키텍처 선택 과정
 
-**🌐 배포 링크**: [https://cgh0524.github.io/project-scriptly-front](https://cgh0524.github.io/project-scriptly-front)
+### 문제 인식: 클린 아키텍처의 프론트엔드 적용 한계
 
-**핵심 목표:**
+실무에서 클린 아키텍처를 사용하며 경험한 어려움들:
 
-- **완성도 있는 개인 메모앱**: 마크다운 기반의 실용적인 메모 도구 완성
-- **FSD 아키텍처 적용**: Feature-Sliced Design을 통한 확장 가능한 구조 학습
-- **기술 역량 강화**: React, TypeScript에 대한 이해도 향상
+- 실무에서는 외부 기술보다 **내부 비즈니스 로직이 더 자주 변경**
+- UI 컴포넌트 설계 기준 부재로 인한 **거대 컴포넌트와 로직 강결합**
+- 과도한 추상화로 인한 **개발 복잡성 증가**
 
-<br>
+### 해결 방안: Feature Sliced Design 도입
 
-## 🛠 기술 및 아키텍처
+**선택 근거**:
 
-### Frontend
+- 프론트엔드에 특화된 아키텍처로 UI 계층 체계화
+- 기능 중심 구조로 높은 코드 응집도 확보
+- 보일러플레이트 최소화로 실용적 개발 환경 구축
 
-- **Framework**: React 18 + TypeScript
-- **Build Tool**: Vite
-- **Styling**: styled-components
-- **Routing**: React Router
-- **State Management**: Jotai
-- **Local Storage**: IndexedDB
-- **Architecture**: Feature-Sliced Design (FSD)
+**도입 결과**:
 
-<br>
+- 작업 효율성 향상 (코드 위치 파악 용이)
+- 유지보수성 개선 (기능별 독립적 관리)
+- 확장성 확보 (MVP → 고도화 자연스러운 전환)
 
-## 🎯 아키텍처 선택 이유
+### 실무 적용 인사이트
 
-회사 프로젝트에서 클린 아키텍처를 사용하며 겪은 프론트엔드 특화 문제들을 해결하기 위해 FSD 아키텍처를 선택했습니다.
+- **Repository 패턴**: 데이터 추상화의 장점은 유지하되 FSD 구조 내에서 적용
+- **기능 중심 폴더링**: "어느 폴더에 넣을까?" 고민 시간 대폭 단축
+- **점진적 개발**: MVP부터 복잡한 기능까지 자연스러운 확장 경로 확보
 
-**클린 아키텍처 적용 시 발생한 문제점:**
+## 💡 핵심 기술 구현
 
-- 클린 아키텍처는 외부 의존성을 추상화하여 내부 도메인 로직을 보호하는 것이 핵심이지만, 실무에서는 아키텍처 외부인 Vue나 React가 변경될 일은 거의 없고 오히려 내부 도메인이 더 자주 변경됨
-- 프론트엔드의 기능/행동 중심 도메인은 비즈니스 도메인 기준으로 명확히 구분되어 관리될 수 없음
-- 프로젝트 복잡도 증가 시 코드 일관성과 유지보수성 저하
-- UI/UX 코드 비중이 높지만 관련 설계 기준이 부재하고, 데이터 레이어 과도한 분리로 보일러플레이트 증가
+### 1. 확장 가능한 데이터 레이어 설계
 
-**FSD 선택 이유 및 실제 사용 경험:**
+**문제**: IndexedDB → REST API 전환 시 비즈니스 로직 변경 최소화 필요
 
-_기대 효과:_
+**해결**: Repository 패턴으로 데이터 소스 추상화
 
-- **UI Layer 기준 명확화**: 프론트엔드 특화된 레이어 구조 제공
-- **재사용성 향상**: 낮은 레이어의 추상화 레벨을 높여 상위 레이어에서 재사용 가능
-- **캡슐화**: index.ts를 통한 내부 세그먼트/슬라이스 접근 제한 및 도메인별로 외부에 노출할 API를 명시적으로 정의
+```typescript
+// 공통 인터페이스 정의
+interface MemoRepository {
+  findAll(): Promise<Memo[]>;
+  findById(id: string): Promise<Memo | null>;
+  create(memo: CreateMemoRequest): Promise<Memo>;
+  update(id: string, memo: UpdateMemoRequest): Promise<Memo>;
+  delete(id: string): Promise<void>;
+}
 
-_장점:_
+// IndexedDB 구현체
+class IdbMemoRepository implements MemoRepository { ... }
 
-- **프로젝트 표준화**: 명확한 기준으로 일관된 구조 유지 가능
-- **높은 응집도**: 기능별 구성요소의 교체, 추가, 제거가 용이 (개방폐쇄원칙 준수)
-- **유연한 엔티티 대응**: 비즈니스 엔티티(Line-노선)와 기능 중심 엔티티(OnboardingLine-탑승노선, FavoriteLine-즐겨찾기 노선) 모두 명확한 기준으로 분류 가능
+// REST API 구현체 (향후 구현)
+class HttpMemoRepository implements MemoRepository { ... }
 
-_단점:_
-
-- **보일러플레이트 여전히 존재**: Repository 패턴으로 데이터 레이어 추상화 시 보일러플레이트 코드 발생
-- **학습 곡선**: 7개 레이어의 명확한 기준, segment/slice 등 수직 컨벤션 이해 필요
-- **MVP 부적합**: 개발 속도만 고려하면 단순 모듈식 아키텍처가 더 빠를 수 있음
-
-<br>
-
-## ⚙️ 주요 구현사항
-
-### 완료된 기능
-
-- **Repository 패턴**: 데이터 레이어 추상화로 향후 백엔드 API 교체 대비
-- **IndexedDB 활용**: 브라우저 로컬 저장소를 통한 메모 CRUD 구현
-- **블록 기반 실시간 마크다운 렌더링**:
-  - Heading 문법 지원 (# ~ ######)
-  - 입력과 동시에 마크다운이 실시간으로 렌더링
-- **방향키를 이용한 블록간 이동**: 화살표 키를 통한 직관적인 블록 간 네비게이션
-
-### 개발 예정
-
-- **블록 기반 실시간 마크다운 렌더링 확장**:
-  - 리스트 문법 (- , \* , 1. 등)
-  - 강조 표시 (**굵게**, _기울임_, ~~취소선~~ 등)
-  - 기타 인라인 문법 지원
-- **가상 스크롤링**: 대량 데이터 최적화
-
-<br>
-
-## 📁 폴더구조
-
-> 💡 **참고**: 아래는 FSD 아키텍처의 주요 레이어 구조와 대표적인 예시입니다. 개발 진행에 따라 slice와 segment가 추가됩니다.
-
-```
-src/
-├── app/                    # 앱 초기화, 전역 설정, 라우터
-│   ├── providers/          # (예시) Context Provider들
-│   └── styles/             # (예시) 전역 스타일
-├── pages/                  # 페이지 레벨 라우팅 컴포넌트
-│   ├── home/               # (예시) 홈 페이지
-│   └── editor/             # (예시) 에디터 페이지
-├── widgets/                # 독립적인 UI 블록 (여러 feature 조합)
-│   ├── header/             # (예시) 헤더 위젯
-│   └── sidebar/            # (예시) 사이드바 위젯
-├── features/               # 비즈니스 기능 단위
-│   ├── memo-create/        # (예시) 메모 생성 기능
-│   └── markdown-parse/     # (예시) 마크다운 파싱 기능
-├── entities/               # 비즈니스 엔티티 (도메인 모델)
-│   └── memo/               # (예시) 메모 엔티티
-│       ├── model/          # 타입 정의, 상태 관리
-│       ├── api/            # API 통신 로직
-│       └── ui/             # 엔티티 관련 UI 컴포넌트
-└── shared/                 # 재사용 가능한 공통 코드
-    ├── ui/                 # 공통 UI 컴포넌트
-    ├── lib/                # 유틸리티, 헬퍼 함수
-    ├── api/                # API 설정, 인터셉터
-    └── config/             # 환경 설정
+// 싱글톤 패턴으로 일관된 인스턴스 제공
+export const memoRepository = new IdbMemoRepository();
 ```
 
-<br>
+### 2. 블록 기반 에디터 아키텍처
 
-## 📝 커밋 컨벤션
+**문제**: 기존 textarea로는 블록 단위 조작 불가
 
-- `feat`: 새로운 기능 추가
-- `fix`: 버그 수정
-- `sanitize`: 불필요한 코드 제거 (기능 변화 없음)
-- `refactor`: 코드 개선 (기능 변화 없음)
-- `style`: 코드 스타일 변경 (포맷팅, 세미콜론 등)
-- `chore`: 설정 파일, 도구 관련 변경
-- `docs`: 문서 변경
+**해결**: Selection API + 커스텀 블록 시스템
 
-<br>
+```typescript
+// 블록에 포커스 설정 및 커서 위치 제어
+export const focusBlock = (blockId: string, cursorOffset?: number): void => {
+  const blockElement = getBlockElement(blockId);
+  if (!blockElement) return;
+
+  blockElement.focus();
+
+  if (cursorOffset === undefined) return;
+
+  // Selection API로 정확한 커서 위치 설정
+  const selection = window.getSelection();
+  const range = document.createRange();
+
+  const textNode = blockElement.firstChild;
+  if (textNode && textNode.nodeType === Node.TEXT_NODE) {
+    const maxOffset = Math.min(cursorOffset, textNode.textContent?.length || 0);
+    range.setStart(textNode, maxOffset);
+    range.setEnd(textNode, maxOffset);
+
+    selection?.removeAllRanges();
+    selection?.addRange(range);
+  }
+};
+
+// 커서 위치에서 HTML을 앞/뒤로 분할 (엔터키 처리용)
+export const splitHtmlAtCursor = (element: HTMLElement) => {
+  const selection = window.getSelection();
+  if (!selection || selection.rangeCount === 0) {
+    return { beforeHtml: element.innerHTML || '', afterHtml: '' };
+  }
+
+  const range = selection.getRangeAt(0);
+  // ... HTML 구조를 유지하며 분할 로직
+};
+```
+
+### 3. 실시간 마크다운 렌더링
+
+**문제**: 입력과 동시에 마크다운 문법을 시각적으로 렌더링 필요
+
+**해결**: 확장 가능한 패턴 기반 파서 + 스페이스바 트리거
+
+```typescript
+// 확장 가능한 마크다운 패턴 정의
+interface MarkdownPattern {
+  name: string;
+  pattern: RegExp;
+  trigger: string;
+  transform: (match: RegExpMatchArray) => { tagName: string; content: string };
+}
+
+const PATTERNS: MarkdownPattern[] = [
+  {
+    name: 'heading',
+    pattern: /^(#{1,6})\s*(.*)$/,
+    trigger: ' ',
+    transform: (match) => {
+      const [, hashes, content] = match;
+      const level = hashes.length;
+      return { tagName: `h${level}`, content: content.trim() };
+    },
+  },
+  // TODO: 리스트, 인용구 등 추가 패턴 확장 예정
+];
+
+// 패턴 감지 함수
+export const detectMarkdownPattern = (text: string, trigger: string = ' ') => {
+  for (const pattern of PATTERNS) {
+    if (pattern.trigger !== trigger) continue;
+
+    const match = text.match(pattern.pattern);
+    if (match) {
+      const result = pattern.transform(match);
+      return { type: pattern.name, ...result };
+    }
+  }
+  return null;
+};
+
+// 키보드 이벤트에서 실시간 변환 처리
+const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+  if (event.key === ' ') {
+    const element = event.currentTarget;
+    const text = element.textContent || '';
+
+    const pattern = detectMarkdownPattern(text);
+    if (pattern) {
+      event.preventDefault();
+      const cursorOffset = pattern.content.length;
+      onTransform?.(block.id, pattern.tagName, pattern.content, cursorOffset);
+    }
+  }
+};
+```
+
+### 4. IndexedDB Promise 래핑
+
+**문제**: IndexedDB의 이벤트 기반 API로 인한 콜백 헬과 복잡한 에러 처리
+
+**해결**: Promise 기반 트랜잭션 래퍼로 비동기 처리 개선
+
+```typescript
+// 트랜잭션 헬퍼 함수 - 이벤트를 Promise로 래핑
+export async function executeTransaction<T>(
+  db: IDBDatabase,
+  storeName: string,
+  mode: IDBTransactionMode = 'readonly',
+  work: (store: IDBObjectStore) => Promise<T | undefined>,
+): Promise<T | undefined> {
+  const store = db.transaction([storeName], mode).objectStore(storeName);
+  const result = await work(store);
+  return result;
+}
+
+// Repository에서 Promise 패턴 활용
+const createMemo = async (memo: CreateMemoRequest): Promise<Memo> => {
+  const idbMemo = await executeTransaction<IdbMemo>(db, 'memos', 'readwrite', async (store) => {
+    const newIdbMemo = toIdb(memo);
+
+    // 이벤트 기반 API를 Promise로 변환
+    await new Promise<void>((resolve, reject) => {
+      const req = store.add(newIdbMemo);
+      req.onsuccess = () => resolve();
+      req.onerror = () => reject(req.error);
+    });
+
+    return newIdbMemo;
+  });
+
+  if (!idbMemo) {
+    throw new Error('Failed to create memo');
+  }
+  return toDomain(idbMemo);
+};
+```
+
+## 🚀 주요 기능
+
+### 현재 구현된 기능
+
+- **블록 기반 실시간 마크다운 렌더링**: Heading 문법 지원 (# ~ ######)
+- **방향키 네비게이션**: 화살표 키를 통한 직관적인 블록 간 이동
+- **Repository 패턴**: IndexedDB 기반 메모 CRUD 구현
+
+### 📈 성능 최적화 및 확장 계획
+
+- **마크다운 문법 확장**: 리스트, 강조 표시 등 인라인 문법 지원
+- **가상 스크롤링**: 대량 메모 데이터 최적화
+- **REST API 연동**: 백엔드 서버와의 데이터 동기화
+
+## 🛠️ 기술 스택
+
+| 분야                 | 기술                        |
+| -------------------- | --------------------------- |
+| **Framework**        | React 18 + TypeScript       |
+| **Build Tool**       | Vite                        |
+| **Styling**          | styled-components           |
+| **State Management** | Jotai                       |
+| **Local Storage**    | IndexedDB                   |
+| **Architecture**     | Feature-Sliced Design (FSD) |
 
 ## ⚡ Quick Start
 
@@ -147,8 +245,8 @@ src/
 git clone [repository-url]
 
 # 의존성 설치
-npm install
+yarn install
 
 # 개발 서버 실행
-npm run dev
+yarn dev
 ```
