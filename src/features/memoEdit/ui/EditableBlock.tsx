@@ -62,6 +62,7 @@ export const EditableBlock = ({
 
   // 키보드 이벤트 처리 (트리거 기반 마크다운 파싱)
   const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.nativeEvent.isComposing) return;
     if (!blockRef.current) return;
 
     if (event.key === 'ArrowUp' && isFirstLine(event.currentTarget)) {
